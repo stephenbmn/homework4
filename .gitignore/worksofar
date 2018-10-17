@@ -1,0 +1,35 @@
+from string import punctuation
+import re
+
+def tokenize(s):
+    words = s.lower().strip().split()
+    twords = [word.strip(punctuation) for word in words]
+    return twords
+
+def gutenberg_file_wc(filename):
+    alice = open('alice.txt').read()
+    a = alice.find("*** START OF THIS PROJECT GUTENBERG EBOOK")
+    z = alice.find("*** END OF THIS PROJECT GUTENBERG EBOOK")
+    alice_new = alice[a:z]
+    alice_tokens = tokenize(alice_new)
+    gutenberg_file_wc = {x: alice_tokens.count(x) for x in alice_tokens}
+    return gutenberg_file_wc
+
+def view_wc(d):
+    from operator import itemgetter
+    dist = sorted(d.items(), key=itemgetter(1), reverse=True)
+    return "".join(" {}:{} " .format(k, v) for k, v in d.items())
+
+twophonemeclusters = ['sch', 'shr', 'thr', 'thw']
+onephonemeclusters = ['ts', 'cz', 'ps', 'gn', 'th', 'sh', 'ch']
+
+clusterdata = view_wc(gutenberg_file_wc('alice.txt'))
+def clustercount(d):
+    pattern1 = re.compile(r'\b[bBcCdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXzZ]{3}|\b[bBcCdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXzZ]{2}')
+    matchesclusters = pattern1.findall(clusterdata)
+    clustercount = {x: matchesclusters.count(x) for x in matchesclusters}
+    return clustercount
+
+#print(gutenberg_file_wc('alice.txt'))
+#print(view_wc(gutenberg_file_wc('alice.txt')))
+print(clustercount(view_wc(gutenberg_file_wc('alice.txt'))))
